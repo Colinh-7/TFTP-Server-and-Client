@@ -1,4 +1,4 @@
-# TFTP Server with Select and Multi-threading Support
+# TFTP Server with Select and Multi-threading Support 
 
 This project implements a TFTP server that utilizes the `select` system call for handling multiple connections and supports multi-threading for parallel request processing.
 
@@ -99,3 +99,4 @@ In this example, three clients will send RRQ or WRQ requests randomly at the sam
   ```bash
   ./bin/tftp --mode SRV --port 6999
   ```
+Made with Bryan C.
