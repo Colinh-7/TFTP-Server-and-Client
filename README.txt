@@ -1,29 +1,53 @@
-------------------------------------------------------
-			Select
-------------------------------------------------------
-Tous les changements liés au select sont dans le fichier sock.c
-Pour lancer le serveur taper ces commandes :
+# TFTP Server with Select and Multi-threading Support
 
-- Compiler : "make"
-- Exécuter : "./bin/tftp --mode SRV --port 6999"
+This project implements a TFTP server that utilizes the `select` system call for handling multiple connections and supports multi-threading for parallel request processing.
 
-Vous pouvez lancer plusieurs commandes en même temps en lançant deux instances de clients (dans un répertoire différent sinon problème de concurrences sur les fichiers).
+## Table of Contents
+- [Select Implementation](#select)
+- [Multi-threading](#multi-threading)
+- [Client Request Spam Testing](#client-request-spam-testing)
+- [Commands](#commands)
 
-Commandes pour lancer un client lançant des requetes sur le port 6999 : "./bin/tftp --mode CLT --port 6999"
+---
 
+## Select
 
-------------------------------------------------------
-		Multi-threading
-------------------------------------------------------
+All changes related to the `select` functionality can be found in the `sock.c` file. 
 
-Pour cette étape nous avons rajouter une structure "Service" qui sont les différents threads auxquels sont donnés les requêtes à gérer. 
+To start the server, run the following commands:
 
-Le "Server" possède une liste de service. Quand celui-ci reçoit une requête, il la transmet à un de ses services disponibles. Le "Service" choisit prend donc le relais et traite la requête. Cela permet à notre serveur de traiter des requêtes en parallèle.
+- **Compile the server:**
+  ```bash
+  make
+  ```
 
-Pour éviter les problèmes de concurrences, nous avons assigner un mutex à chaque fichier disponible à la racine du serveur. Tous ces mutex sont stockés dans un AVL pour une recherche plus rapide.
+- **Run the server:**
+  ```bash
+  ./bin/tftp --mode SRV --port 6999
+  ```
 
-Voici une schématisation de notre AVL.
+You can launch multiple commands simultaneously by running two client instances (in different directories to avoid file concurrency issues).
 
+### Commands to launch a client sending requests to port 6999:
+```bash
+./bin/tftp --mode CLT --port 6999
+```
+
+---
+
+## Multi-threading
+
+For this feature, we introduced a "Service" structure that manages different threads handling incoming requests.
+
+The server maintains a list of services. When it receives a request, it passes it to one of its available services, which then takes over and processes the request. This allows our server to handle requests in parallel.
+
+To prevent concurrency issues, we have assigned a mutex to each file available at the root of the server. All these mutexes are stored in an AVL tree for faster lookup.
+
+### AVL Tree Structure
+
+Here’s a schematic representation of our AVL tree:
+
+```
                 Node
           +-------------+
           |   Mutex     |
@@ -39,27 +63,41 @@ Voici une schématisation de notre AVL.
 +-------------+     +-------------+
    /      \               /     \
 Node     Node         Node      Node
+```
 
-Lorsqu'un service traite une requête, il prend le mutex associé au nom de fichier correspondant, une fois la requête terminée il le relâche.
+When a service processes a request, it locks the mutex associated with the corresponding file name. Once the request is completed, it releases the mutex.
 
-Commandes :
------------
+---
 
-- "make"
-- "./bin/tftp --mode SRV --port 6999"
+## Client Request Spam Testing
 
+To test our server, we created a Bash script that launches random requests in the background.
 
-------------------------------------------------------
-		Spam requêtes clients
-------------------------------------------------------
+You can use this script if you wish (run.sh).
 
-Pour tester notre serveur, nous avons fait un script bash permettant de lancer en arrière plan des requêtes aléatoires.
+### How to execute:
+```bash
+./run.sh [number of clients sending random requests simultaneously] [PORT]
+```
 
-Il est à votre disposition si vous voulez l'utiliser. (run.sh)
+### Example:
+```bash
+./run.sh 3 6999
+```
+In this example, three clients will send RRQ or WRQ requests randomly at the same time.
 
-Il s'exécute de la manière suivante :
-- "./run.sh [nombre de clients envoyant des requêtes aléatoires en même temps] [PORT]"
+---
 
-Exemple : "./run.sh 3 6999"
-	
-Trois clients enverront donc en même temps des requêtes RRQ ou WRQ aléatoirement.
+## Commands
+
+- **Compile the server:**
+  ```bash
+  make
+  ```
+
+- **Run the server:**
+  ```bash
+  ./bin/tftp --mode SRV --port 6999
+  ```
+
+---
