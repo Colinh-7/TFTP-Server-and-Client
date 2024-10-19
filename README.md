@@ -1,4 +1,4 @@
-# TFTP Server with Select and Multi-threading Support 
+# TFTP Server and Client with Select and Multi-threading Support 
 
 This project implements a TFTP server that utilizes the `select` system call for handling multiple connections and supports multi-threading for parallel request processing.
 
