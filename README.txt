@@ -99,5 +99,3 @@ In this example, three clients will send RRQ or WRQ requests randomly at the sam
   ```bash
   ./bin/tftp --mode SRV --port 6999
   ```
-
----
